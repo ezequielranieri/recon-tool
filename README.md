@@ -1,5 +1,11 @@
 # 🚀 recon-tool
 
+![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)
+![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
+![Checked with mypy](https://img.shields.io/badge/mypy-checked-2a6db2)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
+
 **Professional Network Reconnaissance Tool built with Python and Asyncio.**
 
 `recon-tool` is a high-performance CLI utility designed for fast, secure, and reliable network scanning. It leverages asynchronous I/O to perform concurrent port discovery, banner grabbing, and service identification, providing detailed reports in human-readable and machine-interoperable formats.
