@@ -1,6 +1,7 @@
 """Interfaz de línea de comandos (CLI) profesional para recon-tool."""
 
 import asyncio
+import socket
 import time
 from enum import StrEnum
 from pathlib import Path
@@ -73,9 +74,14 @@ async def ejecutar_escaneo(
 
         await asyncio.gather(*(scan_task(p) for p in puertos))
 
+    try:
+        ip = socket.gethostbyname(host)
+    except socket.gaierror:
+        ip = host
+
     return ResultadoEscaneo(
         host=host,
-        ip=host,
+        ip=ip,
         duracion_segundos=time.monotonic() - start_time,
         puertos_escaneados=len(puertos),
         puertos_abiertos=sorted(puertos_abiertos, key=lambda x: x.puerto),
