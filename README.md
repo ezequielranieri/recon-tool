@@ -98,18 +98,18 @@ Target:  scanme.nmap.org
 Ports:   22,80,443 (3 ports)
 Workers: 100 | 1.0s
 
-Escaneando scanme.nmap.org... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
+Scanning scanme.nmap.org... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
 
-                          Resultados para scanme.nmap.org
+                          Results for scanme.nmap.org
 ┏━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Puerto ┃ Estado  ┃ Servicio        ┃ Banner                                  ┃
+┃ Port   ┃ State   ┃ Service         ┃ Banner                                  ┃
 ┡━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
-│ 22     │ abierto │ SSH             │ SSH-2.0-OpenSSH_6.6.1p1 Ubuntu-2ubuntu2 │
-│ 80     │ abierto │ HTTP            │ -                                       │
+│ 22     │ open    │ SSH             │ SSH-2.0-OpenSSH_6.6.1p1 Ubuntu-2ubuntu2 │
+│ 80     │ open    │ HTTP            │ -                                       │
 └────────┴─────────┴─────────────────┴─────────────────────────────────────────┘
 
-Completado en 1.42s
-Abiertos: 2
+Completed in 1.42s
+Open: 2
 ```
 
 ---

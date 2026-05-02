@@ -61,7 +61,7 @@ async def ejecutar_escaneo(
         TaskProgressColumn(),
         console=console,
     ) as progress:
-        task = progress.add_task(f"[cyan]Escaneando {host}...", total=len(puertos))
+        task = progress.add_task(f"[cyan]Scanning {host}...", total=len(puertos))
 
         async def scan_task(p: int) -> None:
             res = await escanear_puerto(host, p, timeout, semaforo)
@@ -84,24 +84,24 @@ async def ejecutar_escaneo(
 
 @app.command(name="scan")
 def scan(
-    host: Annotated[str, typer.Argument(help="Host o IP objetivo a escanear")],
+    host: Annotated[str, typer.Argument(help="Target host or IP to scan")],
     ports: Annotated[
-        str, typer.Option("--ports", "-p", help="Puertos (ej: 80,443 o 1-1024)")
+        str, typer.Option("--ports", "-p", help="Ports (e.g.: 80,443 or 1-1024)")
     ] = "1-1000",
     timeout: Annotated[
-        float, typer.Option("--timeout", "-t", help="Timeout por puerto (s)")
+        float, typer.Option("--timeout", "-t", help="Timeout per port (s)")
     ] = settings.timeout_default,
     workers: Annotated[
-        int, typer.Option("--workers", "-w", help="Escaneos concurrentes")
+        int, typer.Option("--workers", "-w", help="Concurrent scans")
     ] = settings.max_workers,
     output: Annotated[
-        Path | None, typer.Option("--output", "-o", help="Ruta de reporte")
+        Path | None, typer.Option("--output", "-o", help="Report path")
     ] = None,
     format_rep: Annotated[
-        FormatoReporte, typer.Option("--format", "-f", help="Formato del reporte")
+        FormatoReporte, typer.Option("--format", "-f", help="Report format")
     ] = FormatoReporte.TEXT,
 ) -> None:
-    """Escanea un host en busca de puertos abiertos y servicios."""
+    """Scan a host for open ports and services."""
     console.print(
         Panel.fit(
             f"[bold blue]{settings.app_name}[/bold blue] v0.1.0\n"
@@ -116,7 +116,7 @@ def scan(
 
         console.print(f"[bold]Target:[/bold]  [green]{host_v}[/green]")
         console.print(
-            f"[bold]Puertos:[/bold] [yellow]{ports}[/yellow] ({len(lista_p)})"
+            f"[bold]Ports:[/bold]  [yellow]{ports}[/yellow] ({len(lista_p)})"
         )
         console.print(f"[bold]Workers:[/bold] [cyan]{workers}[/cyan] | {timeout}s")
         console.print("")
@@ -125,28 +125,28 @@ def scan(
 
         if res.puertos_abiertos:
             table = Table(
-                title=f"Resultados para {host_v}",
+                title=f"Results for {host_v}",
                 show_header=True,
                 header_style="bold magenta",
             )
-            table.add_column("Puerto", style="dim", width=8)
-            table.add_column("Estado", justify="center")
-            table.add_column("Servicio", style="cyan")
+            table.add_column("Port", style="dim", width=8)
+            table.add_column("State", justify="center")
+            table.add_column("Service", style="cyan")
             table.add_column("Banner", style="green")
 
             for p in res.puertos_abiertos:
                 table.add_row(
                     str(p.puerto),
-                    "[bold green]abierto[/bold green]",
-                    p.servicio or "desconocido",
+                    "[bold green]open[/bold green]",
+                    p.servicio or "unknown",
                     p.banner or "-",
                 )
             console.print(table)
         else:
-            console.print("\n[yellow]No se encontraron puertos abiertos.[/yellow]")
+            console.print("\n[yellow]No open ports found.[/yellow]")
 
-        console.print(f"\n[bold blue]Completado en {res.duracion_segundos:.2f}s[/]")
-        console.print(f"Abiertos: [bold green]{len(res.puertos_abiertos)}[/]")
+        console.print(f"\n[bold blue]Completed in {res.duracion_segundos:.2f}s[/]")
+        console.print(f"Open: [bold green]{len(res.puertos_abiertos)}[/]")
 
         if output:
             if format_rep == FormatoReporte.JSON:
@@ -154,15 +154,15 @@ def scan(
             else:
                 generar_reporte_texto(res, output)
             console.print(
-                f"\n[bold green]✅ Reporte en:[/bold green] [underline]{output}[/]"
+                f"\n[bold green]✅ Report saved at:[/bold green] [underline]{output}[/]"
             )
 
     except ValueError as e:
-        console.print(f"\n[bold red]❌ Error de validación:[/bold red] {e}")
+        console.print(f"\n[bold red]❌ Validation Error:[/bold red] {e}")
         raise typer.Exit(code=1) from e
     except Exception as e:
-        logger.exception("Error inesperado en el CLI")
-        console.print(f"\n[bold red]❌ Error inesperado:[/bold red] {e}")
+        logger.exception("Unexpected CLI error")
+        console.print(f"\n[bold red]❌ Unexpected Error:[/bold red] {e}")
         raise typer.Exit(code=1) from e
 
 
