@@ -22,6 +22,12 @@ class Settings(BaseSettings):
     max_workers: int = 100
     log_level: str = "INFO"
 
+    # Los 20 puertos más comunes según Nmap
+    TOP_PORTS: list[int] = [
+        21, 22, 23, 25, 53, 80, 110, 135, 139, 143,
+        443, 445, 993, 995, 1723, 3306, 3389, 5900, 8080, 8443
+    ]
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

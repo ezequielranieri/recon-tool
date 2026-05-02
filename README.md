@@ -46,7 +46,7 @@ This tool was developed to demonstrate a senior-level mastery of the Python ecos
 Clone the repository and install the package in editable mode:
 
 ```bash
-git clone https://github.com/youruser/recon-tool.git
+git clone https://github.com/ezequielranieri/recon-tool.git
 cd recon-tool
 pip install -e .
 ```
