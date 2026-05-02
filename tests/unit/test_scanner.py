@@ -1,4 +1,4 @@
-"""Pruebas unitarias para el módulo de escaneo."""
+"""Unit tests for the scanning module."""
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -9,12 +9,12 @@ from recon.core.scanner import escanear_puerto, escanear_rango
 
 
 class TestScanner:
-    """Suite de pruebas para el escáner de puertos."""
+    """Test suite for the port scanner."""
 
     @pytest.mark.asyncio
     async def test_escanear_puerto_abierto(self):
-        """Verifica que un puerto abierto se detecte correctamente."""
-        # Mock de asyncio.open_connection para simular éxito
+        """Verifies that an open port is correctly detected."""
+        # Mock of asyncio.open_connection to simulate success
         mock_reader = AsyncMock()
         mock_writer = MagicMock()
         mock_writer.close = MagicMock()
@@ -28,33 +28,33 @@ class TestScanner:
 
             assert isinstance(resultado, ResultadoPuerto)
             assert resultado.puerto == 80
-            assert resultado.estado == "abierto"
+            assert resultado.estado == "open"
             assert resultado.tiempo_ms >= 0
 
     @pytest.mark.asyncio
     async def test_escanear_puerto_cerrado(self):
-        """Verifica que un puerto cerrado (conexión rechazada) se detecte."""
+        """Verifies that a closed port (connection refused) is detected."""
         with patch(
             "asyncio.open_connection", AsyncMock(side_effect=ConnectionRefusedError())
         ):
             resultado = await escanear_puerto("127.0.0.1", 81, timeout=0.1)
 
-            assert resultado.estado == "cerrado"
+            assert resultado.estado == "closed"
 
     @pytest.mark.asyncio
     async def test_escanear_puerto_filtrado(self):
-        """Verifica que un timeout se interprete como puerto filtrado."""
+        """Verifies that a timeout is interpreted as a filtered port."""
         with patch("asyncio.open_connection", AsyncMock(side_effect=TimeoutError())):
             resultado = await escanear_puerto("127.0.0.1", 443, timeout=0.1)
 
-            assert resultado.estado == "filtrado"
+            assert resultado.estado == "filtered"
 
     @pytest.mark.asyncio
     async def test_escanear_rango_concurrente(self):
-        """Verifica que el escaneo de rango funcione y sea concurrente."""
+        """Verifies that range scanning works and is concurrent."""
         puertos = [80, 443, 8080]
 
-        # Simulamos que todos están cerrados para simplificar
+        # Simulate that all are closed for simplicity
         with patch(
             "asyncio.open_connection", AsyncMock(side_effect=ConnectionRefusedError())
         ):
@@ -63,13 +63,13 @@ class TestScanner:
             assert len(resultados) == 3
             for r in resultados:
                 assert r.puerto in puertos
-                assert r.estado == "cerrado"
+                assert r.estado == "closed"
 
     @pytest.mark.asyncio
     async def test_validacion_rango_puertos(self):
-        """Pydantic debe validar que el puerto esté entre 1 y 65535."""
+        """Pydantic must validate that the port is between 1 and 65535."""
         with pytest.raises(ValueError):
-            ResultadoPuerto(puerto=70000, estado="abierto", tiempo_ms=1.0)
+            ResultadoPuerto(puerto=70000, estado="open", tiempo_ms=1.0)
 
         with pytest.raises(ValueError):
-            ResultadoPuerto(puerto=0, estado="abierto", tiempo_ms=1.0)
+            ResultadoPuerto(puerto=0, estado="open", tiempo_ms=1.0)

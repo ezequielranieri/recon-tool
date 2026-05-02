@@ -1,4 +1,4 @@
-"""Módulo para el control de velocidad (rate limiting) de las peticiones."""
+"""Module for request rate limiting."""
 
 import asyncio
 from collections import deque
@@ -6,41 +6,41 @@ from time import monotonic
 
 
 class RateLimiter:
-    """Limita la cantidad de peticiones por ventana de tiempo.
+    """Limits the number of requests per time window.
 
-    Esta clase asegura que no se superen los límites impuestos para evitar
-    bloqueos o abusos en sistemas externos.
+    This class ensures that imposed limits are not exceeded to avoid
+    blocking or abuse in external systems.
     """
 
     def __init__(self, max_requests: int, ventana_segundos: float):
-        """Inicializa el limitador.
+        """Initializes the limiter.
 
         Args:
-            max_requests: Número máximo de peticiones permitidas.
-            ventana_segundos: Ventana de tiempo en segundos.
+            max_requests: Maximum number of allowed requests.
+            ventana_segundos: Time window in seconds.
         """
         self.max_requests = max_requests
         self.ventana = ventana_segundos
         self.timestamps: deque[float] = deque()
 
     async def adquirir(self) -> None:
-        """Adquiere un espacio en el limitador, esperando si es necesario.
+        """Acquires a slot in the limiter, waiting if necessary.
 
-        Calcula el tiempo de espera basado en las peticiones anteriores
-        dentro de la ventana de tiempo actual.
+        Calculates the wait time based on previous requests
+        within the current time window.
         """
         ahora = monotonic()
 
-        # Limpiar timestamps que están fuera de la ventana
+        # Clean timestamps that are outside the window
         while self.timestamps and ahora - self.timestamps[0] > self.ventana:
             self.timestamps.popleft()
 
-        # Si alcanzamos el límite, esperar hasta que el más antiguo salga de la ventana
+        # If we reach the limit, wait until the oldest one leaves the window
         if len(self.timestamps) >= self.max_requests:
             espera = self.ventana - (ahora - self.timestamps[0])
             if espera > 0:
                 await asyncio.sleep(espera)
-            # Volver a verificar recursivamente después de dormir
+            # Re-check recursively after sleeping
             await self.adquirir()
             return
 

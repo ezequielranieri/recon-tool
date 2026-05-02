@@ -1,9 +1,9 @@
-"""Módulo de validación para hosts y puertos con enfoque en seguridad."""
+"""Validation module for hosts and ports with a security focus."""
 
 import re
 from ipaddress import AddressValueError, ip_address, ip_network
 
-# Redes reservadas según seguridad.md
+# Reserved networks according to seguridad.md
 REDES_RESERVADAS = [
     ip_network("0.0.0.0/8"),
     ip_network("10.0.0.0/8"),
@@ -20,75 +20,75 @@ PUERTO_MAX = 65535
 
 
 def validar_host(host: str) -> str:
-    """Valida que el host sea una IP válida o un hostname seguro.
+    """Validates that the host is a valid IP or a secure hostname.
 
     Args:
-        host: Hostname o IP a validar.
+        host: Hostname or IP to validate.
 
     Returns:
-        El host validado.
+        The validated host.
 
     Raises:
-        ValueError: Si el host no es válido o es una IP reservada.
+        ValueError: If the host is invalid or a reserved IP.
     """
-    # 1. Intentar como IP
+    # 1. Try as IP
     es_ip = False
     try:
         addr = ip_address(host)
         es_ip = True
-        # Verificar si es una IP reservada
+        # Check if it is a reserved IP
         if any(addr in red for red in REDES_RESERVADAS):
             raise ValueError(
-                f"La dirección IP {host} está reservada y no es escaneable"
+                f"The IP address {host} is reserved and not scannable"
             )
         return str(addr)
 
     except (ValueError, AddressValueError):
-        # Si era una IP y lanzó ValueError por estar reservada, re-lanzar
+        # If it was an IP and threw ValueError for being reserved, re-throw
         if es_ip:
             raise
         pass
 
-    # 2. Validar como hostname (RFC 1123)
+    # 2. Validate as hostname (RFC 1123)
     patron = re.compile(
         r"^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$"
     )
     if not patron.match(host) and host != "localhost":
-        raise ValueError(f"Hostname inválido: {host}")
+        raise ValueError(f"Invalid hostname: {host}")
 
     return host
 
 
 def validar_puerto(puerto: int) -> int:
-    """Valida que el puerto esté en el rango permitido.
+    """Validates that the port is within the allowed range.
 
     Args:
-        puerto: Número de puerto.
+        puerto: Port number.
 
     Returns:
-        El puerto si es válido.
+        The port if valid.
 
     Raises:
-        ValueError: Si el puerto está fuera de rango.
+        ValueError: If the port is out of range.
     """
     if not PUERTO_MIN <= puerto <= PUERTO_MAX:
         raise ValueError(
-            f"Puerto {puerto} fuera de rango válido ({PUERTO_MIN}-{PUERTO_MAX})"
+            f"Port {puerto} out of valid range ({PUERTO_MIN}-{PUERTO_MAX})"
         )
     return puerto
 
 
 def parsear_puertos(input_puertos: str) -> list[int]:
-    """Parsea una cadena de puertos (ej: '80,443', '1-1024').
+    """Parses a port string (e.g.: '80,443', '1-1024').
 
     Args:
-        input_puertos: String con la especificación de puertos.
+        input_puertos: String with port specification.
 
     Returns:
-        Lista de puertos únicos y ordenados.
+        List of unique and sorted ports.
 
     Raises:
-        ValueError: Si el formato es inválido o algún puerto está fuera de rango.
+        ValueError: If the format is invalid or any port is out of range.
     """
     puertos: set[int] = set()
     partes = input_puertos.split(",")
@@ -101,23 +101,23 @@ def parsear_puertos(input_puertos: str) -> list[int]:
                 inicio = int(inicio_str)
                 fin = int(fin_str)
                 if inicio > fin:
-                    raise ValueError(f"Rango inválido: {parte}")
+                    raise ValueError(f"Invalid range: {parte}")
                 for p in range(inicio, fin + 1):
                     puertos.add(validar_puerto(p))
             except ValueError as e:
-                if "Rango inválido" in str(e) or "Puerto" in str(e):
+                if "Invalid range" in str(e) or "Port" in str(e):
                     raise
-                raise ValueError(f"Formato de rango inválido: {parte}") from e
+                raise ValueError(f"Invalid range format: {parte}") from e
         else:
             try:
                 puerto = int(parte)
                 puertos.add(validar_puerto(puerto))
             except ValueError as e:
-                if "Puerto" in str(e):
+                if "Port" in str(e):
                     raise
-                raise ValueError(f"Número de puerto inválido: {parte}") from e
+                raise ValueError(f"Invalid port number: {parte}") from e
 
     if not puertos:
-        raise ValueError("No se especificaron puertos válidos")
+        raise ValueError("No valid ports specified")
 
     return sorted(list(puertos))

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "recon-tool"
 version = "0.1.0"
-description = "Herramienta CLI profesional de reconocimiento de red"
+description = "Professional network reconnaissance CLI tool"
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [

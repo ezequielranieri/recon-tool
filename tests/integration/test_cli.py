@@ -1,4 +1,4 @@
-"""Pruebas de integración para la interfaz CLI."""
+"""Integration tests for the CLI interface."""
 
 from unittest.mock import MagicMock, patch
 
@@ -13,14 +13,14 @@ runner = CliRunner()
 
 @pytest.fixture
 def mock_scan_results():
-    """Simula resultados de escaneo para evitar conexiones reales."""
+    """Simulates scan results to avoid real connections."""
     return [
         ResultadoPuerto(
-            puerto=80, estado="abierto", servicio="HTTP", banner="nginx", tiempo_ms=10.0
+            puerto=80, estado="open", servicio="HTTP", banner="nginx", tiempo_ms=10.0
         ),
         ResultadoPuerto(
             puerto=443,
-            estado="abierto",
+            estado="open",
             servicio="HTTPS",
             banner=None,
             tiempo_ms=12.0,
@@ -29,26 +29,26 @@ def mock_scan_results():
 
 
 def test_cli_scan_help():
-    """Verifica que el comando de ayuda funcione."""
+    """Verifies that the help command works."""
     result = runner.invoke(app, ["scan", "--help"])
     assert result.exit_code == 0
-    assert "Escanea un host en busca de puertos abiertos y servicios" in result.stdout
+    assert "Scan a host for open ports and services" in result.stdout
 
 
 @patch("recon.cli.validar_host")
 @patch("recon.cli.parsear_puertos")
 @patch("recon.cli.asyncio.run")
 def test_cli_scan_success(mock_async_run, mock_parse_puertos, mock_validar_host):
-    """Prueba un escaneo exitoso (con mocks)."""
-    # Configurar mocks
+    """Tests a successful scan (with mocks)."""
+    # Configure mocks
     mock_validar_host.return_value = "8.8.8.8"
     mock_parse_puertos.return_value = [80, 443]
 
-    # Mock del resultado del escaneo
+    # Mock of the scan result
     mock_resultado = MagicMock()
     mock_resultado.puertos_abiertos = [
         ResultadoPuerto(
-            puerto=80, estado="abierto", servicio="HTTP", banner="nginx", tiempo_ms=1.0
+            puerto=80, estado="open", servicio="HTTP", banner="nginx", tiempo_ms=1.0
         )
     ]
     mock_resultado.duracion_segundos = 1.5
@@ -60,15 +60,15 @@ def test_cli_scan_success(mock_async_run, mock_parse_puertos, mock_validar_host)
     assert result.exit_code == 0
     assert "Target:  8.8.8.8" in result.stdout
     assert "80" in result.stdout
-    assert "abierto" in result.stdout
+    assert "open" in result.stdout
     assert "HTTP" in result.stdout
 
 
 def test_cli_scan_invalid_host():
-    """Verifica el manejo de error ante un host inválido."""
+    """Verifies error handling for an invalid host."""
     result = runner.invoke(app, ["scan", "invalid_host!!!"])
     assert result.exit_code == 1
-    assert "Error de validación" in result.stdout
+    assert "Validation Error" in result.stdout
 
 
 @patch("recon.cli.validar_host")
@@ -77,7 +77,7 @@ def test_cli_scan_invalid_host():
 def test_cli_scan_with_report(
     mock_async_run, mock_parse_puertos, mock_validar_host, tmp_path
 ):
-    """Prueba la generación de reporte desde la CLI."""
+    """Tests report generation from the CLI."""
     mock_validar_host.return_value = "8.8.8.8"
     mock_parse_puertos.return_value = [80]
 
@@ -91,5 +91,5 @@ def test_cli_scan_with_report(
     result = runner.invoke(app, ["scan", "8.8.8.8", "--output", str(report_file)])
 
     assert result.exit_code == 0
-    assert "Reporte en" in result.stdout
+    assert "Report saved at" in result.stdout
     assert report_file.exists()

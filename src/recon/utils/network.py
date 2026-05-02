@@ -1,4 +1,4 @@
-"""Utilidades de red de bajo nivel y manejo seguro de sockets."""
+"""Low-level network utilities and safe socket handling."""
 
 import socket
 import ssl
@@ -8,20 +8,20 @@ from typing import Any
 def conectar_seguro(
     host: str, puerto: int, timeout: float = 3.0, use_ssl: bool = False
 ) -> socket.socket:
-    """Crea una conexión socket con manejo seguro de recursos.
+    """Creates a socket connection with safe resource management.
 
     Args:
-        host: Hostname o IP objetivo.
-        puerto: Puerto a conectar.
-        timeout: Tiempo máximo de espera en segundos.
-        use_ssl: Si se debe aplicar una capa SSL/TLS.
+        host: Target hostname or IP.
+        puerto: Port to connect to.
+        timeout: Maximum wait time in seconds.
+        use_ssl: Whether to apply an SSL/TLS layer.
 
     Returns:
-        Socket conectado.
+        Connected socket.
 
     Raises:
-        ConnectionError: Si no se puede establecer la conexión.
-        ValueError: Si los parámetros son inválidos.
+        ConnectionError: If the connection cannot be established.
+        ValueError: If parameters are invalid.
     """
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(timeout)
@@ -35,25 +35,25 @@ def conectar_seguro(
         return sock
     except socket.timeout:
         sock.close()
-        raise ConnectionError(f"Timeout conectando a {host}:{puerto}")
+        raise ConnectionError(f"Timeout connecting to {host}:{puerto}")
     except OSError as e:
         sock.close()
-        raise ConnectionError(f"No se pudo conectar a {host}:{puerto}: {e}") from e
+        raise ConnectionError(f"Could not connect to {host}:{puerto}: {e}") from e
     except Exception as e:
         sock.close()
-        raise ConnectionError(f"Error inesperado conectando a {host}:{puerto}: {e}")
+        raise ConnectionError(f"Unexpected error connecting to {host}:{puerto}: {e}")
 
 
 def es_puerto_abierto(host: str, puerto: int, timeout: float = 1.0) -> bool:
-    """Verificación rápida si un puerto está abierto (sin mantener conexión).
+    """Quick check if a port is open (without keeping the connection).
 
     Args:
-        host: Host objetivo.
-        puerto: Puerto a verificar.
-        timeout: Tiempo máximo de espera.
+        host: Target host.
+        puerto: Port to verify.
+        timeout: Maximum wait time.
 
     Returns:
-        True si el puerto aceptó la conexión, False en caso contrario.
+        True if the port accepted the connection, False otherwise.
     """
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.settimeout(timeout)

@@ -1,4 +1,4 @@
-"""Pruebas unitarias para los módulos de reporte."""
+"""Unit tests for the report modules."""
 
 import json
 from datetime import datetime
@@ -12,7 +12,7 @@ from recon.reports.text_report import generar_reporte_texto
 
 @pytest.fixture
 def resultado_mock():
-    """Crea un objeto ResultadoEscaneo para pruebas."""
+    """Creates a ResultadoEscaneo object for testing."""
     return ResultadoEscaneo(
         host="example.com",
         ip="93.184.216.34",
@@ -22,14 +22,14 @@ def resultado_mock():
         puertos_abiertos=[
             ResultadoPuerto(
                 puerto=80,
-                estado="abierto",
+                estado="open",
                 servicio="HTTP",
                 banner="nginx/1.24.0",
                 tiempo_ms=10.5,
             ),
             ResultadoPuerto(
                 puerto=443,
-                estado="abierto",
+                estado="open",
                 servicio="HTTPS",
                 banner=None,
                 tiempo_ms=12.1,
@@ -39,8 +39,8 @@ def resultado_mock():
 
 
 def test_generar_reporte_json(resultado_mock, tmp_path):
-    """Verifica que el reporte JSON se genere correctamente."""
-    archivo = tmp_path / "reporte.json"
+    """Verifies that the JSON report is generated correctly."""
+    archivo = tmp_path / "report.json"
     generar_reporte_json(resultado_mock, archivo)
 
     assert archivo.exists()
@@ -55,8 +55,8 @@ def test_generar_reporte_json(resultado_mock, tmp_path):
 
 
 def test_generar_reporte_texto(resultado_mock, tmp_path):
-    """Verifica que el reporte de texto se genere correctamente."""
-    archivo = tmp_path / "reporte.txt"
+    """Verifies that the text report is generated correctly."""
+    archivo = tmp_path / "report.txt"
     generar_reporte_texto(resultado_mock, archivo)
 
     assert archivo.exists()

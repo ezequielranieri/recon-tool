@@ -1,4 +1,4 @@
-"""Modelos de datos para el escaneo de puertos."""
+"""Data models for port scanning."""
 
 from datetime import datetime
 
@@ -6,14 +6,14 @@ from pydantic import BaseModel, Field
 
 
 class ResultadoPuerto(BaseModel):
-    """Representa el resultado del escaneo de un solo puerto.
+    """Represents the scan result of a single port.
 
     Attributes:
-        puerto: El número del puerto escaneado.
-        estado: El estado detectado ("abierto", "cerrado", "filtrado").
-        servicio: El nombre del servicio identificado (si existe).
-        banner: El banner capturado del servicio (si existe).
-        tiempo_ms: El tiempo de respuesta en milisegundos.
+        puerto: The scanned port number.
+        estado: The detected state ("open", "closed", "filtered").
+        servicio: The name of the identified service (if any).
+        banner: The service banner captured (if any).
+        tiempo_ms: Response time in milliseconds.
     """
 
     puerto: int = Field(..., ge=1, le=65535)
@@ -24,16 +24,16 @@ class ResultadoPuerto(BaseModel):
 
 
 class ResultadoEscaneo(BaseModel):
-    """Representa el resultado completo del escaneo de un host.
+    """Represents the complete scan result of a host.
 
     Attributes:
-        host: El hostname o IP objetivo.
-        ip: La dirección IP resuelta.
-        timestamp: Fecha y hora del escaneo.
-        duracion_segundos: Duración total del escaneo.
-        puertos_escaneados: Cantidad total de puertos procesados.
-        puertos_abiertos: Lista de resultados para puertos abiertos.
-        metadata: Información adicional opcional.
+        host: The target hostname or IP.
+        ip: The resolved IP address.
+        timestamp: Scan date and time.
+        duracion_segundos: Total scan duration.
+        puertos_escaneados: Total amount of processed ports.
+        puertos_abiertos: List of results for open ports.
+        metadata: Optional additional information.
     """
 
     host: str

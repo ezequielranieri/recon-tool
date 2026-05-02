@@ -1,4 +1,4 @@
-"""Módulo para exportar resultados de escaneo a formato JSON."""
+"""Module for exporting scan results to JSON format."""
 
 from pathlib import Path
 
@@ -6,13 +6,13 @@ from recon.core.models import ResultadoEscaneo
 
 
 def generar_reporte_json(resultado: ResultadoEscaneo, path: Path) -> None:
-    """Exporta el resultado del escaneo a un archivo JSON.
+    """Exports the scan result to a JSON file.
 
     Args:
-        resultado: Objeto ResultadoEscaneo con la información capturada.
-        path: Ruta del archivo donde se guardará el reporte.
+        resultado: ResultadoEscaneo object with the captured information.
+        path: Path to the file where the report will be saved.
     """
-    # Usamos model_dump_json para serializar correctamente objetos como datetime
+    # We use model_dump_json to correctly serialize objects like datetime
     datos_json = resultado.model_dump_json(indent=4)
 
     with open(path, "w", encoding="utf-8") as f:

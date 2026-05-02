@@ -1,6 +1,6 @@
-"""Módulo para la identificación de servicios basados en puertos y banners."""
+"""Module for service identification based on ports and banners."""
 
-# Mapeo mínimo obligatorio según proyecto_recon.md
+# Minimum mandatory mapping according to proyecto_recon.md
 SERVICIOS_CONOCIDOS: dict[int, str] = {
     21: "FTP",
     22: "SSH",
@@ -23,24 +23,24 @@ SERVICIOS_CONOCIDOS: dict[int, str] = {
 
 
 def identificar_servicio(puerto: int, banner: str | None = None) -> str:
-    """Identifica el servicio asociado a un puerto.
+    """Identifies the service associated with a port.
 
-    Prioriza la detección por banner si el puerto no es estándar,
-    o confirma el servicio si el banner coincide con el puerto.
+    Prioritizes banner detection if the port is non-standard,
+    or confirms the service if the banner matches the port.
 
     Args:
-        puerto: Puerto escaneado.
-        banner: Banner capturado (opcional).
+        puerto: Scanned port.
+        banner: Captured banner (optional).
 
     Returns:
-        Nombre del servicio identificado o "desconocido".
+        Name of the identified service or "unknown".
     """
-    # 1. Intentar identificar por banner (heurística básica)
+    # 1. Attempt to identify by banner (basic heuristic)
     if banner:
         banner_upper = banner.upper()
         if "SSH" in banner_upper:
             return "SSH"
-        # Heurística refinada para HTTP
+        # Refined heuristic for HTTP
         if any(mark in banner_upper for mark in ["HTTP/1.", "HTTP/1.1", "HTTP/2", "SERVER:", "CONTENT-TYPE:"]):
             return "HTTP"
         if "FTP" in banner_upper:
@@ -52,5 +52,5 @@ def identificar_servicio(puerto: int, banner: str | None = None) -> str:
         if "REDIS" in banner_upper:
             return "Redis"
 
-    # 2. Si no hay banner o no hubo match, usar mapeo por puerto
-    return SERVICIOS_CONOCIDOS.get(puerto, "desconocido")
+    # 2. If no banner or no match, use port mapping
+    return SERVICIOS_CONOCIDOS.get(puerto, "unknown")
