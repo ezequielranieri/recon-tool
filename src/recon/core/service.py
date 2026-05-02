@@ -40,7 +40,8 @@ def identificar_servicio(puerto: int, banner: str | None = None) -> str:
         banner_upper = banner.upper()
         if "SSH" in banner_upper:
             return "SSH"
-        if "HTTP" in banner_upper or "HTML" in banner_upper:
+        # Heurística refinada para HTTP
+        if any(mark in banner_upper for mark in ["HTTP/1.", "HTTP/1.1", "HTTP/2", "SERVER:", "CONTENT-TYPE:"]):
             return "HTTP"
         if "FTP" in banner_upper:
             return "FTP"

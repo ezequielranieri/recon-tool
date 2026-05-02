@@ -28,3 +28,8 @@ def test_identificar_por_banner_heuristica():
     banner_mysql = "5.7.44-0ubuntu0.18.04.1-log MySQL Community Server"
     assert identificar_servicio(3306, banner=banner_mysql) == "MySQL"
     assert identificar_servicio(6379, banner="Redis server v=6.0.16") == "Redis"
+    # HTTP con headers específicos
+    assert identificar_servicio(8081, banner="Server: Apache/2.4.41") == "HTTP"
+    assert identificar_servicio(8081, banner="HTTP/1.1 200 OK") == "HTTP"
+    # No debe dar falsos positivos con tags HTML genéricos si no hay headers
+    assert identificar_servicio(8081, banner="<HTML><BODY>Hello</BODY></HTML>") == "desconocido"

@@ -30,33 +30,34 @@ async def capturar_banner(host: str, puerto: int, timeout: float = 2.0) -> str |
     Args:
         host: Host objetivo.
         puerto: Puerto abierto.
-        timeout: Tiempo máximo de espera para la respuesta del servicio.
+        timeout: Tiempo máximo total para la operación.
 
     Returns:
         El banner sanitizado o None si no se pudo obtener.
     """
-    try:
-        reader, writer = await asyncio.wait_for(
-            asyncio.open_connection(host, puerto), timeout=timeout
-        )
 
-        # Intentamos leer lo que el servicio envía al conectar
+    async def _logic() -> str | None:
+        reader, writer = await asyncio.open_connection(host, puerto)
         try:
-            # Leemos hasta 1024 bytes
-            data = await asyncio.wait_for(reader.read(1024), timeout=timeout)
+            # Timeout reducido para la lectura (la mitad del total)
+            read_timeout = timeout / 2
+            data = await asyncio.wait_for(reader.read(1024), timeout=read_timeout)
             banner = data.decode("utf-8", errors="ignore")
-
-            writer.close()
-            await writer.wait_closed()
-
             if banner:
                 return sanitizar_banner(banner)
-        except (TimeoutError, ConnectionError):
-            writer.close()
-            await writer.wait_closed()
             return None
+        finally:
+            writer.close()
+            try:
+                await writer.wait_closed()
+            except Exception:
+                pass
 
-    except Exception as e:
+    try:
+        return await asyncio.wait_for(_logic(), timeout=timeout)
+    except (asyncio.TimeoutError, ConnectionError, OSError) as e:
         logger.debug("Error capturando banner en %s:%d: %s", host, puerto, e)
+    except Exception as e:
+        logger.exception("Error inesperado capturando banner en %s:%d", host, puerto)
 
     return None
