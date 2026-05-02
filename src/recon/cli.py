@@ -65,7 +65,7 @@ async def ejecutar_escaneo(
 
         async def scan_task(p: int) -> None:
             res = await escanear_puerto(host, p, timeout, semaforo)
-            if res.estado == "abierto":
+            if res.estado == "open":
                 res.banner = await capturar_banner(host, p, timeout=timeout)
                 res.servicio = identificar_servicio(p, res.banner)
                 puertos_abiertos.append(res)
@@ -168,7 +168,7 @@ def scan(
 
 @app.callback()
 def main() -> None:
-    """Herramienta profesional de reconocimiento de red."""
+    """Professional network reconnaissance tool."""
     pass
 
 
