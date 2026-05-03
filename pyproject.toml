@@ -9,7 +9,7 @@ description = "Professional network reconnaissance CLI tool"
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [
-    { name = "Gemini CLI" },
+    { name = "Ezequiel Ranieri", email = "ezequielranieri@proton.me" },
 ]
 dependencies = [
     "typer[all]",

@@ -150,3 +150,19 @@ Run linting:
 ruff check .
 mypy src/
 ```
+
+---
+
+## 👨‍💻 About the Author
+
+Self-taught developer focused on Python, backend engineering, and cybersecurity.
+No formal CS degree or certifications — just consistent learning, building real projects,
+and a genuine interest in how systems work at a low level.
+
+This project was built to demonstrate practical Python skills: asynchronous programming,
+security-first thinking, and professional code quality — the kind of things that matter
+in production, not in exams.
+
+If you're a recruiter or developer and want to connect:
+[LinkedIn](https://linkedin.com/in/ezequielranieri) · [GitHub](https://github.com/ezequielranieri)
+
