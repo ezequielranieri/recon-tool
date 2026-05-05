@@ -9,7 +9,7 @@ description = "Professional network reconnaissance CLI tool"
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [
-    { name = "Ezequiel Ranieri", email = "ezequielranieri@proton.me" },
+    { name = "Ezequiel Ranieri", email = "ez.ranieri@gmail.com" },
 ]
 dependencies = [
     "typer[all]",
