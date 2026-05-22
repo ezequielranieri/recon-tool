@@ -1,168 +1,119 @@
-# 🚀 recon-tool
+# Recon-Tool: High-Performance Asynchronous Network Reconnaissance
 
-![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)
-![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
-![Checked with mypy](https://img.shields.io/badge/mypy-checked-2a6db2)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
+An asynchronous port scanner and service discovery utility built to demonstrate high-concurrency I/O and security-first development practices. It provides lightning-fast reconnaissance with robust input validation and professional CLI reporting.
 
-**Professional Network Reconnaissance Tool built with Python and Asyncio.**
+## 🌟 About the Developer
+Hello! I'm **Ezequiel Ranieri**. I am a self-taught developer who discovered the world of programming through curiosity and a passion for building things. Everything I know—from architecture patterns to distributed systems—I've learned on my own through books, technical documentation, videos, and endless hours of practice.
 
-`recon-tool` is a high-performance CLI utility designed for fast, secure, and reliable network scanning. It leverages asynchronous I/O to perform concurrent port discovery, banner grabbing, and service identification, providing detailed reports in human-readable and machine-interoperable formats.
+I created this project to consolidate and demonstrate my understanding of software development. I don't claim to be a senior architect; I am a dedicated learner who enjoys solving complex technical challenges and building robust software that works under pressure.
 
----
-
-## 🛡️ Why this project?
-
-This tool was developed to demonstrate a senior-level mastery of the Python ecosystem, specifically focused on **Security** and **Backend Engineering**. It serves as a practical showcase of:
-
-- **Asynchronous Concurrency**: Using `asyncio` and semaphores to handle massive network I/O without blocking.
-- **Security-First Mindset**: Implementing robust input validation, blocking scans on reserved/private IP ranges, and sanitizing untrusted data (banners).
-- **Clean Architecture**: A modular, highly-typed, and tested codebase following SOLID principles and Google Style documentation.
-- **Professional UX**: A polished CLI experience using `Typer` and `Rich` with real-time feedback and structured outputs.
+**Contact:**
+- **Email:** ez.ranieri@gmail.com
+- **GitHub:** https://github.com/ezequielranieri
+- **LinkedIn:** https://www.linkedin.com/in/ezequielranieri/
 
 ---
 
-## ✨ Features
+## 🎯 Why this project?
+I built this tool to explore the limits of Python's `asyncio` ecosystem when handling massive network I/O. My goal was to create a reconnaissance utility that wasn't just fast, but also "safe" by design—implementing strict RFC compliance to prevent accidental scanning of internal or reserved networks. I wanted to move beyond simple socket checks and dive into service identification heuristics and secure banner grabbing.
 
-- **Concurrent TCP Scanning**: Lightning-fast port discovery using non-blocking sockets.
-- **Intelligent Service Identification**: Port-to-service mapping and heuristic-based detection using captured banners.
-- **Advanced Banner Grabbing**: Securely captures service banners with automated sanitization to prevent terminal injection.
-- **Smart Input Parsing**: Supports complex port specifications (e.g., `80,443,1-1024,8080`).
-- **Exportable Reports**: Generate detailed findings in structured `JSON` or formatted `TXT`.
-- **Safety Boundaries**: Built-in protection against scanning local/reserved networks (RFC compliance).
+## 🏗 System Architecture / Data Flow
+My project follows a modular pipeline designed for scalability and clear separation of concerns:
+
+1.  **Input Validation**: The CLI parses target hosts and port ranges, enforcing security boundaries to block reserved IP ranges.
+2.  **Concurrency Control**: I use an asynchronous semaphore to limit the number of simultaneous workers, preventing resource exhaustion.
+3.  **Async Scanning**: The engine performs non-blocking TCP connection attempts to determine port states (open, closed, or filtered).
+4.  **Banner Acquisition**: For open ports, I trigger a sanitized read operation to capture service banners without risking terminal injection.
+5.  **Heuristic Identification**: The system cross-references port numbers and banner signatures to identify the running services.
+6.  **Structured Reporting**: Data is collected into Pydantic models and exported to either formatted terminal tables or persistent files (JSON/TXT).
+
+```mermaid
+graph TD
+    User([User]) --> CLI[cli.py - Typer/Rich]
+    CLI --> Valid[validators.py - Host/Puertos]
+    Valid -- OK --> Orchestrator[ejecutar_escaneo - Asyncio]
+    Valid -- Error --> CLIError[Show Error]
+    
+    subgraph Core Engine
+        Orchestrator --> Scan[scanner.py - TCP Check]
+        Scan -- Open --> Banner[banner.py - Grabber]
+        Banner --> Service[service.py - Identification]
+        Service --> Model[models.py - Pydantic]
+    end
+    
+    Model --> Report[reports/ - Generators]
+    Report --> JSON[JSON Report]
+    Report --> Text[Text Report]
+    Model --> CLIResult[Rich Results Table]
+```
+
+## 🛠 Tech Stack
+- **Python 3.12+**: The core language utilizing the latest type-hinting features.
+- **Asyncio**: The engine driving high-concurrency network operations.
+- **Typer**: Used for building the professional CLI interface and command parsing.
+- **Rich**: Handles the terminal UI, including progress bars, panels, and stylized tables.
+- **Pydantic v2**: Ensures data integrity through strict schema validation and serialization.
+- **Pytest-Asyncio**: My choice for testing the asynchronous network logic.
 
 ---
 
-## 🛠️ Technologies
+## 🚀 Quick Start Guide
+### Prerequisites
+- Python 3.12 or higher installed.
 
-- **Python 3.12+**
-- **Asyncio**: Main concurrency engine.
-- **Typer**: Professional CLI framework.
-- **Rich**: Terminal formatting, tables, and progress bars.
-- **Pydantic v2**: Data modeling and strict validation.
-- **Pydantic Settings**: Environment-based configuration.
-- **Pytest**: Comprehensive unit and integration testing.
-- **Ruff & Mypy**: Industry-standard linting and strict type checking.
-
----
-
-## 📦 Installation
-
-Clone the repository and install the package in editable mode:
-
-```bash
-git clone https://github.com/ezequielranieri/recon-tool.git
-cd recon-tool
-pip install -e .
-```
-
-For development dependencies:
-```bash
-pip install -e ".[dev]"
-```
+### Installation
+1. Clone the repository and navigate to the directory:
+   ```bash
+   git clone https://github.com/ezequielranieri/recon-tool.git
+   cd recon-tool
+   ```
+2. Install the package in editable mode:
+   ```bash
+   pip install -e .
+   ```
+3. (Optional) Install development tools for testing:
+   ```bash
+   pip install -e ".[dev]"
+   ```
 
 ---
 
-## 🚀 Usage
+## 💡 Usage / Endpoints
+The tool is executed as a Python module. Use the `scan` command to start a reconnaissance task.
 
-### Basic Scan
-Scan the top 1000 ports of a target host:
-```bash
-python -m recon scan google.com
-```
-
-### Advanced Port Selection
-Scan specific ports and ranges:
-```bash
-python -m recon scan 8.8.8.8 --ports 22,80,443,8000-9000
-```
-
-### High-Performance Scanning
-Adjust concurrency (workers) and timeouts:
-```bash
-python -m recon scan example.com --workers 500 --timeout 0.5
-```
-
-### Exporting Reports
-Save findings to a file in JSON format:
-```bash
-python -m recon scan scanme.nmap.org -o results.json -f json
-```
+- **Basic Scan (Top 1000 ports)**:
+  ```bash
+  python -m recon scan google.com
+  ```
+- **Specific Ports and Ranges**:
+  ```bash
+  python -m recon scan 1.1.1.1 --ports 22,80,443,1000-2000
+  ```
+- **Performance Tuning**:
+  Adjust workers and timeouts for faster (but more aggressive) scanning:
+  ```bash
+  python -m recon scan scanme.nmap.org --workers 500 --timeout 0.5
+  ```
+- **Exporting Results**:
+  ```bash
+  python -m recon scan example.com -o results.json -f json
+  ```
 
 ---
 
-## 📊 Expected Output
+## 🧠 What I Learned
+Developing this project taught me the nuances of asynchronous network programming, particularly how to handle timeouts and connection errors gracefully without crashing the entire loop. I also learned the importance of sanitizing untrusted data (banners) before displaying it to the user.
 
-```text
-╭─────────────────────────────────────╮
-│   recon-tool v0.1.0                 │
-│   Network Reconnaissance Tool       │
-╰─────────────────────────────────────╯
+### Retrospective & Technical Critique
+Looking back at the code today, I noticed several areas where my current knowledge would improve the design:
+*   **Unused Components**: I found a `RateLimiter` class that was implemented but never actually integrated into the scanner. This is a classic case of "over-engineering" a feature before it's needed.
+*   **Inefficient Regex Handling**: In `validators.py`, I'm compiling a complex hostname regex inside the validation function. Today, I would move that to a module-level constant to avoid the overhead of re-compilation on every call.
+*   **Hardcoded Signatures**: The service identification logic relies on a simple dictionary and a few `if` statements. This isn't scalable. I would refactor this into a plugin-based system or a signature file (like YAML) to allow users to add new protocols without touching the core code.
+*   **Heavy Socket Handling**: I'm using `asyncio.open_connection`, which is great for high-level tasks but overkill for simple port checks. If I were to rebuild this now, I would use raw `socket.connect_ex` wrapped in `loop.run_in_executor` or lower-level transport protocols for a pure SYN scan, which would be significantly lighter on system resources.
 
-Target:  scanme.nmap.org
-Ports:   22,80,443 (3 ports)
-Workers: 100 | 1.0s
+## 🗺 Roadmap
+- **Plugin System**: Externalize service signatures into a separate configuration file.
+- **UDP Support**: Implement asynchronous UDP scanning (which is trickier due to its stateless nature).
+- **Subdomain Enumeration**: Add a new command to find subdomains before scanning ports.
 
-Scanning scanme.nmap.org... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100%
-
-                          Results for scanme.nmap.org
-┏━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ Port   ┃ State   ┃ Service         ┃ Banner                                  ┃
-┡━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
-│ 22     │ open    │ SSH             │ SSH-2.0-OpenSSH_6.6.1p1 Ubuntu-2ubuntu2 │
-│ 80     │ open    │ HTTP            │ -                                       │
-└────────┴─────────┴─────────────────┴─────────────────────────────────────────┘
-
-Completed in 1.42s
-Open: 2
-```
-
----
-
-## 🏗️ Architecture
-
-The project follows a modular structure designed for maintainability and testability:
-
-- **`core/`**: The engine. Handles socket connections (`scanner.py`), banner acquisition (`banner.py`), and service logic (`service.py`).
-- **`utils/`**: Shared logic. Contains strict security validators and network parsers.
-- **`reports/`**: Data persistence. Decoupled logic for different export formats.
-- **`models/`**: Pydantic models ensuring data integrity across the entire pipeline.
-- **`cli.py`**: The interface layer. Orchestrates the flow and handles the UI.
-
----
-
-## 🧪 Quality & Testing
-
-The project maintains high standards through automated checks:
-
-- **Unit Tests**: Coverage for all core logic, validators, and report generators.
-- **Integration Tests**: End-to-end CLI flow verification.
-- **Static Analysis**: 100% type-safe (Mypy strict) and lint-free (Ruff).
-
-Run tests:
-```bash
-pytest
-```
-
-Run linting:
-```bash
-ruff check .
-mypy src/
-```
-
----
-
-## 👨‍💻 About the Author
-
-Self-taught developer focused on Python, backend engineering, and cybersecurity.
-No formal CS degree or certifications — just consistent learning, building real projects,
-and a genuine interest in how systems work at a low level.
-
-This project was built to demonstrate practical Python skills: asynchronous programming,
-security-first thinking, and professional code quality — the kind of things that matter
-in production, not in exams.
-
-If you're a recruiter or developer and want to connect:
-[LinkedIn](https://linkedin.com/in/ezequielranieri) · [GitHub](https://github.com/ezequielranieri)
-
+Thank you for checking out my work! I'm always open to feedback and looking for new opportunities to learn and grow.
